@@ -1,4 +1,4 @@
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8000";
+const API_BASE = process.env.REACT_APP_API_BASE || "https://lab-results-analyzer-2.onrender.com";
 
 export async function analyzeLabs(labs) {
   const res = await fetch(`${API_BASE}/analyze_labs`, {
