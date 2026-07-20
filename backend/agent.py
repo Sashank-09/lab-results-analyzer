@@ -130,7 +130,7 @@ Example:
         print(">>> CALLING CLAUDE API")
 
         response = _client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-5",
             max_tokens=500,
             messages=[
                 {
@@ -163,18 +163,14 @@ Example:
         )
 
     except Exception as e:
-
         import traceback
 
-        print("\n>>> CLAUDE API FAILED <<<")
-        traceback.print_exc()
+    print("=" * 60)
+    print("CLAUDE API ERROR")
+    traceback.print_exc()
+    print("=" * 60)
 
-        print("Using fallback explanation.\n")
-
-        return _fallback_explanation(
-            test_name,
-            value,
-            unit,
-            status,
-            ref
-        )
+    return {
+        "explanation": f"Claude Error: {str(e)}",
+        "next_steps": ["Check Render logs"]
+    }
