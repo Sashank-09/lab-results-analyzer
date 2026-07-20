@@ -198,7 +198,6 @@ lab-results-analyzer/
 │   ├── package.json
 │   └── ...
 │
-├── screenshots/
 │
 ├── README.md
 └── .gitignore
@@ -354,10 +353,9 @@ https://github.com/Sashank-09
 
 LinkedIn:
 
-(Add your LinkedIn)
+linkedin.com/in/sashank-enukurthi
 
 ---
 
-# License
 
-This project is licensed under the MIT License.
+
