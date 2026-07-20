@@ -1,0 +1,8 @@
+test_name,value,unit,patient_id
+Hemoglobin,15.0,g/dL,P006
+Glucose,145,mg/dL,P007
+Potassium,2.8,mmol/L,P008
+WBC,9.2,10^3/uL,P006
+Creatinine,3.4,mg/dL,P008
+Platelets,410,10^3/uL,P007
+ALT,120,U/L,P009

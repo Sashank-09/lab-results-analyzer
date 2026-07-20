@@ -1,0 +1,6 @@
+test_name,value,unit,patient_id
+Glucose,100,mg/dL,P004
+Glucose,101,mg/dL,P004
+Sodium,135,mmol/L,P004
+Sodium,134,mmol/L,P004
+Hemoglobin,13.5,g/dL,P004

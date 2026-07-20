@@ -1,0 +1,5 @@
+test_name,value,unit,patient_id
+Vitamin D,18,ng/mL,P005
+Ferritin,12,ng/mL,P005
+CRP,8.5,mg/L,P005
+Glucose,95,mg/dL,P005

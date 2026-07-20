@@ -29,11 +29,7 @@ def normalize_test_name(name: str) -> str:
 
 
 def reference_range_lookup(test_name: str):
-    """
-    Optional 'tool' the agent calls when a test isn't in the hardcoded
-    dict. In this assignment it simulates an external lookup service;
-    swap the body for a real API call (e.g. LOINC) in production.
-    """
+    
     key = normalize_test_name(test_name)
     if key in REFERENCE_RANGES:
         return REFERENCE_RANGES[key]
