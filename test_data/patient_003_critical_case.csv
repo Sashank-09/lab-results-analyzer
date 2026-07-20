@@ -1,0 +1,7 @@
+test_name,value,unit,patient_id
+Potassium,6.7,mmol/L,P003
+Hemoglobin,7.1,g/dL,P003
+Platelets,38,10^3/uL,P003
+WBC,22.4,10^3/uL,P003
+Glucose,410,mg/dL,P003
+,55,mg/dL,P003

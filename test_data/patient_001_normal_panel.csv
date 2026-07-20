@@ -1,0 +1,7 @@
+test_name,value,unit,patient_id
+Hemoglobin,14.2,g/dL,P001
+WBC,6.8,10^3/uL,P001
+Platelets,260,10^3/uL,P001
+Glucose,88,mg/dL,P001
+Sodium,140,mmol/L,P001
+Potassium,4.1,mmol/L,P001

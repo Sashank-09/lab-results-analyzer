@@ -1,0 +1,7 @@
+test_name,value,unit,patient_id
+Glucose,118,mg/dL,P002
+Creatinine,1.5,mg/dL,P002
+ALT,68,U/L,P002
+Cholesterol_Total,215,mg/dL,P002
+HbA1c,6.0,%,P002
+TSH,4.8,mIU/L,P002
