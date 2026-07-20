@@ -4,21 +4,25 @@ Agent pipeline: Classify -> Route -> Explain
 
 import os
 import json
+import traceback
 from dotenv import load_dotenv
-from reference_ranges import get_reference_range, normalize_test_name
+from reference_ranges import get_reference_range
 
-load_dotenv()  # reads backend/.env into os.environ -- this was missing before
+load_dotenv()
 
-USE_LLM = True
+# -------------------------------
+# Initialize Anthropic Client
+# -------------------------------
+
 try:
     import anthropic
 
     _api_key = os.getenv("ANTHROPIC_API_KEY")
 
-    print("================================")
+    print("=" * 50)
     print("Loading Anthropic...")
     print("API Key Present:", bool(_api_key))
-    print("================================")
+    print("=" * 50)
 
     if _api_key:
         _client = anthropic.Anthropic(api_key=_api_key)
@@ -30,76 +34,128 @@ except Exception as e:
     _client = None
 
 
+# -------------------------------
+# Classification
+# -------------------------------
+
 def classify(test_name: str, value: float):
-    """Deterministic classification against reference range."""
+    """
+    Deterministic classification against reference range.
+    """
+
     ref = get_reference_range(test_name)
-    low, high = ref.get("low"), ref.get("high")
+
+    low = ref.get("low")
+    high = ref.get("high")
 
     if low is None or high is None:
         return "Warning", ref, "no_reference_range"
 
     if value < low or value > high:
+
         span = max(high - low, 1e-6)
+
         deviation = max(low - value, value - high) / span
+
         status = "Critical" if deviation > 0.5 else "Warning"
+
     else:
+
         status = "Normal"
 
     return status, ref, None
 
 
+# -------------------------------
+# Fallback Explanation
+# -------------------------------
+
 def _fallback_explanation(test_name, value, unit, status, ref):
-    low, high = ref.get("low"), ref.get("high")
+
+    low = ref.get("low")
+    high = ref.get("high")
+
     if status == "Normal":
-        text = (f"{test_name.title()} of {value} {unit or ref.get('unit') or ''} "
-                f"falls within the normal reference range ({low}-{high}).")
-        steps = ["No action needed.", "Continue routine monitoring."]
+
+        explanation = (
+            f"{test_name.title()} of {value} "
+            f"{unit or ref.get('unit') or ''} "
+            f"falls within the normal reference range "
+            f"({low}-{high})."
+        )
+
+        next_steps = [
+            "No action needed.",
+            "Continue routine monitoring."
+        ]
+
     else:
-        direction = "below" if low is not None and value < low else "above"
-        text = (f"{test_name.title()} of {value} {unit or ref.get('unit') or ''} is "
-                f"{direction} the reference range ({low}-{high}), which may indicate "
-                f"a clinically significant abnormality requiring review.")
-        steps = (["Escalate for urgent physician review.", "Consider repeat testing to confirm."]
-                  if status == "Critical" else
-                  ["Flag for physician review.", "Recommend follow-up testing."])
-    return text, steps
+
+        direction = "below" if value < low else "above"
+
+        explanation = (
+            f"{test_name.title()} of {value} "
+            f"{unit or ref.get('unit') or ''} is "
+            f"{direction} the reference range "
+            f"({low}-{high}). "
+            f"This may require clinical evaluation."
+        )
+
+        if status == "Critical":
+
+            next_steps = [
+                "Seek urgent physician review.",
+                "Repeat testing immediately."
+            ]
+
+        else:
+
+            next_steps = [
+                "Schedule physician review.",
+                "Repeat testing if recommended."
+            ]
+
+    return explanation, next_steps
 
 
-def explain(test_name: str, value: float, unit: str, status: str, ref: dict):
-    """
-    Uses Claude to generate a clinical explanation.
-    Falls back only if Claude fails.
-    """
+# -------------------------------
+# LLM Explanation
+# -------------------------------
+
+def explain(test_name, value, unit, status, ref):
 
     print("\n" + "=" * 60)
     print("EXPLAIN FUNCTION CALLED")
-    print(f"Test: {test_name}")
-    print(f"Value: {value}")
-    print(f"Status: {status}")
-
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-
-    print("API Key Present:", bool(api_key))
-    print("Client Created:", _client is not None)
+    print("Test:", test_name)
+    print("Value:", value)
+    print("Status:", status)
     print("=" * 60)
 
-    if _client is None or not api_key:
-        print(">>> USING FALLBACK (Missing API Key or Client)")
-        return _fallback_explanation(test_name, value, unit, status, ref)
+    if _client is None:
+
+        print("Using fallback because client is None.")
+
+        return _fallback_explanation(
+            test_name,
+            value,
+            unit,
+            status,
+            ref
+        )
 
     prompt = f"""
 You are an experienced physician.
 
-Explain the following laboratory result.
+Explain this laboratory result.
 
 Laboratory Test:
 {test_name}
 
 Patient Value:
-{value} {unit or ref.get('unit') or ''}
+{value} {unit or ref.get("unit") or ""}
 
 Reference Range:
-{ref.get('low')} - {ref.get('high')} {ref.get('unit') or ''}
+{ref.get("low")} - {ref.get("high")} {ref.get("unit") or ""}
 
 Classification:
 {status}
@@ -107,12 +163,12 @@ Classification:
 Instructions:
 
 1. Explain what this laboratory test measures.
-2. Explain why THIS patient's value is abnormal or normal.
-3. Mention likely medical causes.
-4. Mention whether the abnormality is mild, moderate, or severe.
-5. Give two short follow-up recommendations.
+2. Explain why THIS value is normal or abnormal.
+3. Mention common medical causes.
+4. Mention whether it is mild, moderate or severe.
+5. Give two follow-up recommendations.
 
-Return ONLY valid JSON.
+Return ONLY JSON.
 
 Example:
 
@@ -127,11 +183,14 @@ Example:
 
     try:
 
-        print(">>> CALLING CLAUDE API")
+        print("Calling Claude...")
 
         response = _client.messages.create(
+
             model="claude-sonnet-5",
+
             max_tokens=500,
+
             messages=[
                 {
                     "role": "user",
@@ -140,22 +199,23 @@ Example:
             ]
         )
 
-        print(">>> CLAUDE RESPONSE RECEIVED")
+        raw = ""
 
-        raw = "".join(
-            block.text
-            for block in response.content
-            if getattr(block, "type", "") == "text"
-        ).strip()
+        for block in response.content:
 
-        print("Raw Response:")
+            if getattr(block, "type", "") == "text":
+                raw += block.text
+
+        raw = raw.strip()
+
+        print("Claude Raw Response:")
         print(raw)
 
-        raw = raw.replace("```json", "").replace("```", "").strip()
+        raw = raw.replace("```json", "")
+        raw = raw.replace("```", "")
+        raw = raw.strip()
 
         data = json.loads(raw)
-
-        print(">>> JSON PARSED SUCCESSFULLY")
 
         return (
             data.get("explanation", ""),
@@ -163,14 +223,69 @@ Example:
         )
 
     except Exception as e:
-        import traceback
 
-    print("=" * 60)
-    print("CLAUDE API ERROR")
-    traceback.print_exc()
-    print("=" * 60)
+        print("=" * 60)
+        print("CLAUDE API ERROR")
+        traceback.print_exc()
+        print("=" * 60)
 
-    return {
-        "explanation": f"Claude Error: {str(e)}",
-        "next_steps": ["Check Render logs"]
-    }
+        return (
+            f"Claude Error: {str(e)}",
+            ["Check backend logs."]
+        )
+
+
+# -------------------------------
+# Complete Pipeline
+# -------------------------------
+
+def process_lab(test_name, value, unit=None):
+
+    try:
+
+        status, ref, warning = classify(
+            test_name,
+            value
+        )
+
+        explanation, next_steps = explain(
+            test_name,
+            value,
+            unit,
+            status,
+            ref
+        )
+
+        return {
+
+            "status": status,
+
+            "reference_low": ref.get("low"),
+
+            "reference_high": ref.get("high"),
+
+            "explanation": explanation,
+
+            "next_steps": next_steps,
+
+            "error": None,
+        }
+
+    except Exception as e:
+
+        traceback.print_exc()
+
+        return {
+
+            "status": "Error",
+
+            "reference_low": None,
+
+            "reference_high": None,
+
+            "explanation": "",
+
+            "next_steps": [],
+
+            "error": str(e),
+        }
