@@ -53,15 +53,15 @@ def analyze_labs(req: AnalyzeRequest):
             unit=lab.unit,
             patient_id=lab.patient_id,
             status=result["status"],
-            reference_low=result["reference_low"],
-            reference_high=result["reference_high"],
+            reference_low=result["reference_range"].get("low"),
+            reference_high=result["reference_range"].get("high"),
             explanation=result["explanation"],
             next_steps=result["next_steps"],
-            error=result["error"],
-        )
+            error=None,
+)
 
         # --- Route by severity ---
-        if result["error"]:
+        if result["status"] == "Error":
             errors.append(classified)
         elif result["status"] == "Critical":
             critical.append(classified)
@@ -70,7 +70,7 @@ def analyze_labs(req: AnalyzeRequest):
         else:
             normal.append(classified)
 
-    return AnalyzeResponse(critical=critical, warning=warning, normal=normal, errors=errors)
+            return AnalyzeResponse(critical=critical, warning=warning, normal=normal, errors=errors)
 
 
 if __name__ == "__main__":
