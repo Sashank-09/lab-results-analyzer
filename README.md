@@ -307,27 +307,9 @@ http://localhost:3000
 
 ---
 
-## Multiple Lab Inputs
-
-![Multiple Input](Screenshots/Input-Form-2.png)
-
----
-
 ## CSV Upload
 
 ![CSV Upload](Screenshots/CSV_Upload.png)
-
----
-
-## Analysis Results
-
-> Add a screenshot showing Critical, Warning and Normal results after analysis.
-
----
-
-## Swagger API Documentation
-
-> Add a screenshot of `/docs`.
 
 ---
 
