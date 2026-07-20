@@ -12,9 +12,21 @@ load_dotenv()  # reads backend/.env into os.environ -- this was missing before
 USE_LLM = True
 try:
     import anthropic
-    _api_key = os.environ.get("ANTHROPIC_API_KEY")
-    _client = anthropic.Anthropic(api_key=_api_key) if _api_key else None
-except Exception:
+
+    _api_key = os.getenv("ANTHROPIC_API_KEY")
+
+    print("================================")
+    print("Loading Anthropic...")
+    print("API Key Present:", bool(_api_key))
+    print("================================")
+
+    if _api_key:
+        _client = anthropic.Anthropic(api_key=_api_key)
+    else:
+        _client = None
+
+except Exception as e:
+    print("Anthropic Initialization Error:", e)
     _client = None
 
 
@@ -54,56 +66,115 @@ def _fallback_explanation(test_name, value, unit, status, ref):
 
 
 def explain(test_name: str, value: float, unit: str, status: str, ref: dict):
-    if _client is None or not os.environ.get("ANTHROPIC_API_KEY"):
+    """
+    Uses Claude to generate a clinical explanation.
+    Falls back only if Claude fails.
+    """
+
+    print("\n" + "=" * 60)
+    print("EXPLAIN FUNCTION CALLED")
+    print(f"Test: {test_name}")
+    print(f"Value: {value}")
+    print(f"Status: {status}")
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+
+    print("API Key Present:", bool(api_key))
+    print("Client Created:", _client is not None)
+    print("=" * 60)
+
+    if _client is None or not api_key:
+        print(">>> USING FALLBACK (Missing API Key or Client)")
         return _fallback_explanation(test_name, value, unit, status, ref)
 
-    prompt = f"""You are a clinical decision-support assistant. Explain a lab result
-using Explainable AI principles: be specific about WHY this value was flagged,
-not just that it is abnormal.
+    prompt = f"""
+You are an experienced physician.
 
-Test: {test_name}
-Value: {value} {unit or ref.get('unit') or ''}
-Reference range: {ref.get('low')} - {ref.get('high')} {ref.get('unit') or ''}
-Classification: {status}
+Explain the following laboratory result.
 
-Respond ONLY with JSON, no other text, in this exact shape:
-{{"explanation": "2-3 sentence clinically relevant explanation of why this value was flagged and what it means",
-"next_steps": ["short actionable next step", "short actionable next step"]}}
+Laboratory Test:
+{test_name}
+
+Patient Value:
+{value} {unit or ref.get('unit') or ''}
+
+Reference Range:
+{ref.get('low')} - {ref.get('high')} {ref.get('unit') or ''}
+
+Classification:
+{status}
+
+Instructions:
+
+1. Explain what this laboratory test measures.
+2. Explain why THIS patient's value is abnormal or normal.
+3. Mention likely medical causes.
+4. Mention whether the abnormality is mild, moderate, or severe.
+5. Give two short follow-up recommendations.
+
+Return ONLY valid JSON.
+
+Example:
+
+{{
+    "explanation":"....",
+    "next_steps":[
+        "...",
+        "..."
+    ]
+}}
 """
 
     try:
-        resp = _client.messages.create(
-            model="claude-sonnet-5",
-            max_tokens=400,
-            messages=[{"role": "user", "content": prompt}],
+
+        print(">>> CALLING CLAUDE API")
+
+        response = _client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=500,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
         )
-        raw = "".join(b.text for b in resp.content if b.type == "text").strip()
+
+        print(">>> CLAUDE RESPONSE RECEIVED")
+
+        raw = "".join(
+            block.text
+            for block in response.content
+            if getattr(block, "type", "") == "text"
+        ).strip()
+
+        print("Raw Response:")
+        print(raw)
+
         raw = raw.replace("```json", "").replace("```", "").strip()
+
         data = json.loads(raw)
-        return data.get("explanation", ""), data.get("next_steps", [])
-    except Exception as e:
-        print(f"[explain] LLM call failed, using fallback: {e}")
-        return _fallback_explanation(test_name, value, unit, status, ref)
 
+        print(">>> JSON PARSED SUCCESSFULLY")
 
-def process_lab(test_name: str, value: float, unit: str = None):
-    try:
-        status, ref, warning = classify(test_name, value)
-        explanation, next_steps = explain(test_name, value, unit, status, ref)
-        return {
-            "status": status,
-            "reference_low": ref.get("low"),
-            "reference_high": ref.get("high"),
-            "explanation": explanation,
-            "next_steps": next_steps,
-            "error": None,
-        }
+        return (
+            data.get("explanation", ""),
+            data.get("next_steps", [])
+        )
+
     except Exception as e:
-        return {
-            "status": "Error",
-            "reference_low": None,
-            "reference_high": None,
-            "explanation": "",
-            "next_steps": [],
-            "error": str(e),
-        }
+
+        import traceback
+
+        print("\n>>> CLAUDE API FAILED <<<")
+        traceback.print_exc()
+
+        print("Using fallback explanation.\n")
+
+        return _fallback_explanation(
+            test_name,
+            value,
+            unit,
+            status,
+            ref
+        )
