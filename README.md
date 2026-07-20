@@ -1,64 +1,89 @@
-# 🩺 Lab Results Analyzer
+# 🩺 Clinical Lab Results Analyzer
 
-<p align="center">
+An AI-powered web application that analyzes clinical laboratory test results, classifies them using standard medical reference ranges, and generates patient-friendly explanations with actionable recommendations using **Google Gemini AI**.
 
-![React](https://img.shields.io/badge/React-18-blue?logo=react)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green?logo=fastapi)
-![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)
-![Anthropic](https://img.shields.io/badge/Claude-AI-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
-
-</p>
-
-An AI-powered web application that analyzes laboratory blood test results and provides patient-friendly explanations, severity classification, and personalized health recommendations using **Anthropic Claude AI**.
+![React](https://img.shields.io/badge/Frontend-React-blue)
+![FastAPI](https://img.shields.io/badge/Backend-FastAPI-green)
+![Python](https://img.shields.io/badge/Python-3.12-yellow)
+![Google Gemini](https://img.shields.io/badge/AI-Google%20Gemini-orange)
+![Vercel](https://img.shields.io/badge/Frontend-Vercel-black)
+![Render](https://img.shields.io/badge/Backend-Render-purple)
 
 ---
 
-# 🚀 Live Demo
+# 🌐 Live Demo
 
-### 🌐 Frontend
+### Frontend
 
 https://lab-results-analyzer.vercel.app/
 
-### ⚙️ Backend API
+### Backend API
 
 https://lab-results-analyzer-2.onrender.com
 
-### 📖 API Documentation (Swagger)
+### Swagger Documentation
 
 https://lab-results-analyzer-2.onrender.com/docs
 
 ---
 
-# 📌 Project Overview
+# 📖 Overview
 
-Understanding laboratory reports can be difficult for non-medical users because blood test reports contain technical terminology and numerical values.
+Clinical Lab Results Analyzer is an AI-assisted healthcare application that helps users interpret laboratory reports.
 
-The Lab Results Analyzer simplifies this process by:
+Users can:
 
-- Validating laboratory values
-- Comparing them against medical reference ranges
-- Detecting abnormal parameters
-- Generating AI-powered explanations
-- Suggesting next steps and recommendations
-
-Instead of simply displaying numbers, the application explains **what those numbers mean** in simple language.
+- Enter one or multiple laboratory test results
+- Upload laboratory data through CSV files
+- Automatically classify results
+- View medical reference ranges
+- Receive AI-generated explanations
+- Get suggested next steps
+- Identify Critical, Warning, and Normal results instantly
 
 ---
 
 # ✨ Features
 
-- ✅ Laboratory result analysis
-- ✅ AI-powered explanations using Claude AI
-- ✅ Reference range validation
-- ✅ Critical / Warning / Normal classification
-- ✅ Patient-friendly medical explanations
-- ✅ Recommended next steps
-- ✅ REST API
-- ✅ Responsive React UI
-- ✅ FastAPI backend
-- ✅ Secure API key management using environment variables
-- ✅ Cloud deployment using Render & Vercel
+- 🤖 AI-powered explanations using Google Gemini
+- 🩺 Automatic laboratory result classification
+- 📊 Medical reference range validation
+- 🚨 Severity categorization
+  - Critical
+  - Warning
+  - Normal
+- 📁 CSV Upload Support
+- 👤 Optional Patient ID support
+- 📱 Responsive UI
+- ⚡ FastAPI REST API
+- 📖 Swagger API Documentation
+- 🌐 Fully deployed using Vercel & Render
+
+---
+
+# 🏗️ System Architecture
+
+```text
+                React Frontend
+                       │
+                       ▼
+              FastAPI REST API
+                       │
+                       ▼
+            Laboratory Classifier
+                       │
+                       ▼
+          Reference Range Validation
+                       │
+                       ▼
+              Google Gemini API
+                       │
+                       ▼
+       AI Generated Medical Explanation
+                       │
+                       ▼
+             Structured JSON Response
+```
 
 ---
 
@@ -66,10 +91,10 @@ Instead of simply displaying numbers, the application explains **what those numb
 
 ## Frontend
 
-- React.js
+- React
 - JavaScript
+- Axios
 - CSS
-- Fetch API
 
 ## Backend
 
@@ -78,9 +103,9 @@ Instead of simply displaying numbers, the application explains **what those numb
 - Pydantic
 - Uvicorn
 
-## AI
+## AI Integration
 
-- Anthropic Claude API
+- Google Gemini API
 
 ## Deployment
 
@@ -89,210 +114,153 @@ Instead of simply displaying numbers, the application explains **what those numb
 
 ---
 
-# 🏗 Architecture
-
-```text
-                   User
-                     │
-                     ▼
-             React Frontend
-                     │
-              HTTPS POST Request
-                     │
-                     ▼
-             FastAPI Backend
-                     │
-      Reference Range Validation
-                     │
-           Prompt Engineering
-                     │
-                     ▼
-          Anthropic Claude API
-                     │
-             AI Generated Analysis
-                     │
-                     ▼
-             FastAPI Response
-                     │
-                     ▼
-             React Frontend
-                     │
-                     ▼
-            Results Display
-```
-
----
-
-# 🔄 Application Workflow
-
-## Step 1
-
-The user enters laboratory values in the React frontend.
-
-↓
-
-## Step 2
-
-React validates the input and sends a POST request to the FastAPI backend.
-
-↓
-
-## Step 3
-
-FastAPI validates the request using Pydantic models.
-
-↓
-
-## Step 4
-
-The backend compares laboratory values against predefined reference ranges.
-
-↓
-
-## Step 5
-
-A structured prompt is generated and sent to Anthropic Claude.
-
-↓
-
-## Step 6
-
-Claude analyzes the laboratory results and generates:
-
-- Summary
-- Severity
-- Medical explanation
-- Recommendations
-- Next steps
-
-↓
-
-## Step 7
-
-The backend returns the analysis as JSON.
-
-↓
-
-## Step 8
-
-React displays the results in an easy-to-understand format.
-
----
-
 # 📂 Project Structure
 
-```
+```text
 lab-results-analyzer/
 │
 ├── backend/
+│   ├── __pycache__/
+│   ├── .env.example
+│   ├── .python-version
 │   ├── agent.py
 │   ├── main.py
 │   ├── models.py
 │   ├── reference_ranges.py
 │   ├── requirements.txt
-│   └── .env.example
+│   └── runtime.txt
 │
 ├── frontend/
 │   ├── public/
 │   ├── src/
+│   │   ├── components/
+│   │   ├── api.js
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   └── index.js
+│   │
 │   ├── package.json
-│   └── ...
+│   └── package-lock.json
 │
+├── Screenshots/
 │
-├── README.md
-└── .gitignore
+├── test_data/
+│
+├── .gitignore
+│
+└── README.md
 ```
 
 ---
 
-# ⚙ Installation
+# 🚀 Getting Started
 
-## Clone Repository
+## 1. Clone Repository
 
 ```bash
-git clone https://github.com/Sashank-09/lab-results-analyzer.git
-```
+git clone https://github.com/Sashank-09/lab-results-analyzer
 
-```
 cd lab-results-analyzer
 ```
 
 ---
 
-## Backend
+# Backend Setup
 
-```
+```bash
 cd backend
 
 python -m venv venv
 ```
 
-Windows
+Activate virtual environment
 
-```
+### Windows
+
+```bash
 venv\Scripts\activate
 ```
 
-Install packages
+### Linux / macOS
 
+```bash
+source venv/bin/activate
 ```
+
+Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-Run
+Create `.env`
+
+```env
+GEMINI_API_KEY=YOUR_API_KEY
+```
+
+Run Backend
+
+```bash
+uvicorn main:app --reload
+```
+
+Backend runs on
 
 ```
-uvicorn main:app --reload
+http://localhost:8000
+```
+
+Swagger UI
+
+```
+http://localhost:8000/docs
 ```
 
 ---
 
-## Frontend
+# Frontend Setup
 
-```
+```bash
 cd frontend
 
 npm install
 
-npm start
+npm run dev
 ```
 
----
-
-# 🔐 Environment Variables
-
-Create
+Frontend runs on
 
 ```
-backend/.env
+http://localhost:3000
 ```
-
-Example
-
-```env
-ANTHROPIC_API_KEY=your_api_key_here
-```
-
-⚠️ Do not commit your `.env` file.
 
 ---
 
 # 📡 API Endpoint
 
-POST
+## Analyze Laboratory Results
+
+### POST
 
 ```
 /analyze_labs
 ```
 
-Example Request
+### Example Request
 
 ```json
 {
   "labs": [
     {
+      "test_name": "Glucose",
+      "value": 145,
+      "unit": "mg/dL",
+      "patient_id": "P001"
+    },
+    {
       "test_name": "Hemoglobin",
-      "value": 9.8,
+      "value": 15,
       "unit": "g/dL",
       "patient_id": "P001"
     }
@@ -302,60 +270,124 @@ Example Request
 
 ---
 
-# Future Enhancements
+### Example Response
 
-- PDF Lab Report Upload
-- OCR Integration
-- Authentication
+```json
+{
+  "critical": [],
+  "warning": [
+    {
+      "test_name": "Glucose",
+      "status": "Warning"
+    }
+  ],
+  "normal": [
+    {
+      "test_name": "Hemoglobin",
+      "status": "Normal"
+    }
+  ],
+  "errors": []
+}
+```
+
+---
+
+# 📸 Screenshots
+
+## Home Page
+
+![Home](Screenshots/Home-Page.png)
+
+---
+
+## Manual Input Form
+
+![Input Form](Screenshots/Input-Form.png)
+
+---
+
+## Multiple Lab Inputs
+
+![Multiple Input](Screenshots/Input-Form-2.png)
+
+---
+
+## CSV Upload
+
+![CSV Upload](Screenshots/CSV_Upload.png)
+
+---
+
+## Analysis Results
+
+> Add a screenshot showing Critical, Warning and Normal results after analysis.
+
+---
+
+## Swagger API Documentation
+
+> Add a screenshot of `/docs`.
+
+---
+
+# 🧠 AI Processing Workflow
+
+```text
+User Input
+      │
+      ▼
+React Frontend
+      │
+      ▼
+FastAPI Backend
+      │
+      ▼
+Reference Range Validation
+      │
+      ▼
+Severity Classification
+      │
+      ▼
+Google Gemini AI
+      │
+      ▼
+Patient-Friendly Explanation
+      │
+      ▼
+Categorized Results Returned
+```
+
+---
+
+# 📌 Future Enhancements
+
+- Export reports as PDF
+- User Authentication
 - Patient History
-- PDF Export
-- Dashboard
+- Doctor Dashboard
+- Trend Analysis
+- OCR Support for Lab Reports
+- Dark Mode
 - Multi-language Support
-- Email Reports
-- Doctor Portal
+- Interactive Charts
 
 ---
 
-# Security
+# ⚠ Disclaimer
 
-- API keys are stored securely using environment variables.
-- `.env` files are excluded from Git.
-- Only `.env.example` is included in the repository.
+This application is intended for educational and demonstration purposes only.
 
----
+The AI-generated explanations are designed to assist users in understanding laboratory test results and should **not** be considered medical advice.
 
-# Learning Outcomes
-
-This project helped me gain practical experience with:
-
-- React Development
-- FastAPI
-- REST APIs
-- AI Integration
-- Prompt Engineering
-- Pydantic Validation
-- Cloud Deployment
-- Git & GitHub
-- Environment Variables
-- Full Stack Development
+Always consult a qualified healthcare professional for diagnosis and treatment.
 
 ---
 
-# Author
+# 👨‍💻 Author
 
-## Sashank Enukurthi
+**Sashank Enukurthi**
 
-Artificial Intelligence & Data Science Graduate
+GitHub: https://github.com/Sashank-09
 
-GitHub:
-
-https://github.com/Sashank-09
-
-LinkedIn:
-
-linkedin.com/in/sashank-enukurthi
-
----
-
-
-
+LinkedIn: https://www.linkedin.com/in/sashank-enukurthi
