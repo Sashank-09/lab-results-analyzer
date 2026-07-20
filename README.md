@@ -1,3 +1,9 @@
+
+
+https://github.com/user-attachments/assets/652b1378-9b83-4eb3-9df9-764c71f65aaf
+
+
+
 # 🩺 Clinical Lab Results Analyzer
 
 An AI-powered web application that analyzes clinical laboratory test results, classifies them using standard medical reference ranges, and generates patient-friendly explanations with actionable recommendations using **Google Gemini AI**.
